@@ -4,6 +4,8 @@
 #include <stdexcept>
 #include <wx/xml/xml.h>
 #include <wx/graphics.h>
+#include <wx/pen.h>
+#include <wx/brush.h>
 
 
 namespace XmlNodes
@@ -67,11 +69,13 @@ public:
 
 	virtual wxXmlNode*              Serialize() const = 0;
 	static std::unique_ptr<Element> Deserialize(const wxXmlNode* node);
+	static Transform 	            DeserializeTransform(const wxXmlNode* node);
     
+	virtual void Draw(wxGraphicsContext* gc) const = 0;
+	virtual wxRect2DDouble GetBounds() const = 0;
+    //TODO needs to be moved to the element paintable class.
     //Cannot be static because we access the transform inside. 
-    wxXmlNode*                      SerializeTransform();
-
-    Transform transform;
+    wxXmlNode*   SerializeTransform(Transform& t);
 };
 
 class Circle : public Element
@@ -85,6 +89,8 @@ public:
 
 	wxXmlNode* Serialize()const override;
 	static Circle Deserialize(const wxXmlNode* node);
+	void Draw(wxGraphicsContext* gc) const override;
+	wxRect2DDouble GetBounds() const override;
 };
 
 class Rect : public Element
@@ -96,6 +102,8 @@ public:
 
 	wxXmlNode* Serialize()const override;
 	static Rect Deserialize(const wxXmlNode* node);
+	void Draw(wxGraphicsContext* gc) const override;
+	wxRect2DDouble GetBounds() const override;
 };
 
 class Path : public Element
@@ -108,4 +116,6 @@ public:
 
 	wxXmlNode* Serialize()const override;
 	static Path Deserialize(const wxXmlNode* node);
+	void Draw(wxGraphicsContext* gc) const override;
+	wxRect2DDouble GetBounds() const override;
 };

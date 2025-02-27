@@ -36,6 +36,7 @@ void ToolWindow::DrawContent(wxGraphicsContext* gc, const wxRect& rect, int roun
     {
         std::vector<wxPoint2DDouble> points{};
         constexpr int Resolution = 50;
+
         for (int i = 0; i < Resolution; i++)
         {
             double x = (i / static_cast<double>(Resolution) - 0.5) * itemWidth;

@@ -4,13 +4,15 @@
 #include "Frame.h"
 #include "View.h"
 
+class Frame;
+
 class MSCDocApp : public wxApp
 {
 public:
     virtual bool OnInit();
     virtual int OnExit();
 
-    static void SetUpCanvasForView(View* view);
+    static void InitializeCanvas(View* view);
 private:
     //This prolly handles the saving loading functionality
     wxDocManager* docManager;

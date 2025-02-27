@@ -138,7 +138,7 @@
     <ClCompile Include="Canvas.cpp" />
     <ClCompile Include="Document.cpp" />
     <ClCompile Include="Element.cpp" />
-    <ClCompile Include="ElementPaintable.cpp" />
+    <ClCompile Include="PaintableElement.cpp" />
     <ClCompile Include="Frame.cpp" />
     <ClCompile Include="MSCDoc.cpp" />
     <ClCompile Include="SelectableWindow.cpp" />
@@ -149,7 +149,7 @@
     <ClInclude Include="Canvas.h" />
     <ClInclude Include="Document.h" />
     <ClInclude Include="Element.h" />
-    <ClInclude Include="ElementPaintable.h" />
+    <ClInclude Include="PaintableElement.h" />
     <ClInclude Include="Frame.h" />
     <ClInclude Include="MSCDoc.h" />
     <ClInclude Include="SelectableWindow.h" />

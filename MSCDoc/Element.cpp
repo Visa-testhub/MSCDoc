@@ -20,17 +20,29 @@ std::unique_ptr<Element> Element::Deserialize(const wxXmlNode* node)
 	throw std::runtime_error("Unfamiliar element type" + type);
 }
 
-wxXmlNode* Element::SerializeTransform()
+Transform Element::DeserializeTransform(const wxXmlNode* node)
+{
+	Transform trans;
+
+	trans.transX = wxAtof(node->GetAttribute(XmlNodes::TransXAttribute));
+	trans.transY = wxAtof(node->GetAttribute(XmlNodes::TransYAttribute));
+	trans.rotAngle = wxAtof(node->GetAttribute(XmlNodes::RotAttribute));
+	trans.scaleX = wxAtof(node->GetAttribute(XmlNodes::ScaleXAttribute));
+	trans.scaleY = wxAtof(node->GetAttribute(XmlNodes::ScaleYAttribute));
+
+	return trans;
+}
+
+wxXmlNode* Element::SerializeTransform(Transform& t)
 {
 	wxXmlNode* transNode = new wxXmlNode(wxXML_ELEMENT_NODE, XmlNodes::TransformNodeName);
 	
-	transNode->AddAttribute(XmlNodes::TransXAttribute, wxString::FromDouble(transform.transX));
-	transNode->AddAttribute(XmlNodes::TransYAttribute, wxString::FromDouble(transform.transY));
-	transNode->AddAttribute(XmlNodes::RotAttribute, wxString::FromDouble(transform.rotAngle));
-	transNode->AddAttribute(XmlNodes::ScaleXAttribute, wxString::FromDouble(transform.scaleX));
-	transNode->AddAttribute(XmlNodes::ScaleYAttribute, wxString::FromDouble(transform.scaleY));
+	transNode->AddAttribute(XmlNodes::TransXAttribute, wxString::FromDouble(t.transX));
+	transNode->AddAttribute(XmlNodes::TransYAttribute, wxString::FromDouble(t.transY));
+	transNode->AddAttribute(XmlNodes::RotAttribute, wxString::FromDouble(t.rotAngle));
+	transNode->AddAttribute(XmlNodes::ScaleXAttribute, wxString::FromDouble(t.scaleX));
+	transNode->AddAttribute(XmlNodes::ScaleYAttribute, wxString::FromDouble(t.scaleY));
 
-	// Lazy reason to avoid error checking is that if we can't allocate memory for the transNode, we are in deep s*** already.
 	return transNode;
 }
 
@@ -65,6 +77,18 @@ Circle Circle::Deserialize(const wxXmlNode* node)
 	return obj;
 }
 
+void Circle::Draw(wxGraphicsContext* gc) const
+{
+	gc->SetPen(wxPen(colour));
+	gc->SetBrush(wxBrush(colour));
+	gc->DrawEllipse(center.m_x - radius, center.m_y - radius, 2 * radius, 2 * radius);
+}
+
+wxRect2DDouble Circle::GetBounds() const
+{
+	return wxRect2DDouble(center.m_x - radius, center.m_y - radius, 2 * radius, 2 * radius);
+}
+
 wxXmlNode* Rect::Serialize() const
 {
 	wxXmlNode* objNode = new wxXmlNode(wxXML_ELEMENT_NODE, XmlNodes::ObjectNodeName);
@@ -94,6 +118,18 @@ Rect Rect::Deserialize(const wxXmlNode* node)
 	obj.rect.m_height = wxAtof(rectNode->GetAttribute(XmlNodes::HeightAttribute));
 
 	return obj;
+}
+
+void Rect::Draw(wxGraphicsContext* gc) const
+{
+	gc->SetPen(wxPen(colour));
+	gc->SetBrush(wxBrush(colour));
+	gc->DrawRectangle(rect.m_x, rect.m_y, rect.m_width, rect.m_height);
+}
+
+wxRect2DDouble Rect::GetBounds() const
+{
+	return wxRect2DDouble(rect);
 }
 
 wxXmlNode* Path::Serialize() const {
@@ -133,4 +169,32 @@ Path Path::Deserialize(const wxXmlNode* node)
 	}
 
 	return obj;
+}
+
+void Path::Draw(wxGraphicsContext* gc) const
+{
+	if (!points.empty())
+	{
+		gc->SetPen(wxPen(colour, width));
+		gc->StrokeLines(points.size(), points.data());
+	}
+}
+
+wxRect2DDouble Path::GetBounds() const
+{
+	double minX = std::numeric_limits<double>::max();
+	double minY = std::numeric_limits<double>::max();
+	double maxX = std::numeric_limits<double>::min();
+	double maxY = std::numeric_limits<double>::min();
+
+	// Find the max and min values for x and y.
+	for (const auto& pt : points)
+	{
+		minX = std::min(minX, pt.m_x);
+		minY = std::min(minY, pt.m_y);
+		maxX = std::max(maxX, pt.m_x);
+		maxY = std::max(maxY, pt.m_y);
+	}
+
+	return wxRect2DDouble(minX - width / 2, minY - width / 2, maxX - minX + width, maxY - minY + width);
 }

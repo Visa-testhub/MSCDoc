@@ -33,7 +33,7 @@ int MSCDocApp::OnExit()
 	return 0;
 }
 
-void MSCDocApp::SetUpCanvasForView(View* view)
+void MSCDocApp::InitializeCanvas(View* view)
 {
 	wxGetApp().frame->SetUpCanvasForView(view);
 }

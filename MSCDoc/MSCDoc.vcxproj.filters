@@ -39,7 +39,7 @@
     <ClCompile Include="Canvas.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ElementPaintable.cpp">
+    <ClCompile Include="PaintableElement.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -74,7 +74,7 @@
     <ClInclude Include="Canvas.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ElementPaintable.h">
+    <ClInclude Include="PaintableElement.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

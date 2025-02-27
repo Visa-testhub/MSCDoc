@@ -12,14 +12,27 @@ std::ostream& Document::SaveObject(std::ostream& stream)
     wxXmlNode* docNode = new wxXmlNode(wxXML_ELEMENT_NODE, XmlNodes::DocumentNodeName);
 
     docNode->AddAttribute(XmlNodes::VersionAttribute, XmlNodes::VersionValue);
-    for (const auto& element : elements)
+
+	std::vector<PaintableElement>::iterator it = paintableElements.begin();
+	while (it != paintableElements.end())
+	{
+		wxXmlNode* node = it->element->Serialize();
+		wxXmlNode* childNode = it->element->SerializeTransform(it->transform);
+		node->AddChild(childNode);
+		docNode->AddChild(node);
+		it++;
+	}
+
+    /* 
+    for (const std::vector<PaintableElement>::iterator::value_type& pElement : paintableElements)
     {
-        wxXmlNode* node = element->Serialize();
+		wxXmlNode* node = pElement->element->Serialize();
         docNode->AddChild(node);
 
         wxXmlNode* childNode = element->SerializeTransform();
         node->AddChild(childNode);
     }  
+    */
     doc.SetRoot(docNode);
 
     // Second phase. Compress the xml
@@ -68,17 +81,22 @@ std::istream& Document::LoadObject(std::istream& stream)
     }
 
     // Second phase. populate this documents elements array from the loaded xml
-    elements.clear();
+    paintableElements.clear();
     for (wxXmlNode* node = doc.GetRoot()->GetChildren(); node; node = node->GetNext())
     {
         if (node->GetName() != XmlNodes::ObjectNodeName)
             continue;
 
+		// Each node which is inserted while saving objects should have transform node as a child.
+        wxXmlNode* childNode = node->GetChildren();
+		if (childNode == nullptr)
+			continue;
+		Transform transform = Element::DeserializeTransform(childNode);
         std::unique_ptr<Element> element = Element::Deserialize(node);
-        if (element)
-        {
-            elements.push_back(std::move(element));
-        }
+
+        PaintableElement pElement(std::move(element), transform);
+		paintableElements.push_back(std::move(pElement));
+
     }
 
 
